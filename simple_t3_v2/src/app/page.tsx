@@ -1,7 +1,7 @@
 import Link from "next/link";
-
 import { LatestPost } from "barrakudha/app/_components/post";
 import { api, HydrateClient } from "barrakudha/trpc/server";
+import TaskList from "barrakudha/app/_components/task_list"; // Import the TaskList component
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
@@ -46,6 +46,7 @@ export default async function Home() {
           </div>
 
           <LatestPost />
+          <TaskList /> {/* Add the TaskList component here */}
         </div>
       </main>
     </HydrateClient>
