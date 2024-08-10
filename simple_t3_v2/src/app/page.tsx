@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { LatestPost } from "t3/app/_components/post";
-import { api, HydrateClient } from "t3/trpc/server";
-import TaskList from "./_components/task_list";
+
+import { LatestPost } from "barrakudha/app/_components/post";
+import { api, HydrateClient } from "barrakudha/trpc/server";
 
 export default async function Home() {
-  // Await the API call here
   const hello = await api.post.hello({ text: "from tRPC" });
+
   void api.post.getLatest.prefetch();
 
   return (
@@ -41,25 +41,13 @@ export default async function Home() {
           </div>
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">
-              {/* Use the greeting property here */}
-              {hello.greeting || "Loading tRPC query..."}
+              {hello ? hello.greeting : "Loading tRPC query..."}
             </p>
-
-            <div className="flex flex-col items-center justify-center gap-4">
-              <Link
-                href="/api/auth/signin"
-                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-              >
-                Sign in
-              </Link>
-            </div>
           </div>
 
           <LatestPost />
-          <TaskList />
         </div>
       </main>
     </HydrateClient>
   );
 }
-
