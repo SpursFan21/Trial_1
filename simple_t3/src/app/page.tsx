@@ -1,8 +1,8 @@
 import Link from "next/link";
-
 import { LatestPost } from "t3/app/_components/post";
 import { getServerAuthSession } from "t3/server/auth";
 import { api, HydrateClient } from "t3/trpc/server";
+import TaskList from "./_components/task_list"; // Import the TaskList component
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
@@ -60,6 +60,7 @@ export default async function Home() {
           </div>
 
           {session?.user && <LatestPost />}
+          {session?.user && <TaskList />} {/* Add the TaskList component here */}
         </div>
       </main>
     </HydrateClient>
