@@ -1,89 +1,121 @@
 // src/app/task/page.tsx
 
+'use client';
+
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Task {
-  id: string;
-  name: string;
-  state: string;
+  id: number;
+  title: string;
+  state: 'not started' | 'in progress' | 'completed';
 }
 
 export default function TaskPage() {
-  const [taskName, setTaskName] = useState('');
-  const [taskState, setTaskState] = useState('not started');
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
+  const [state, setState] = useState<'not started' | 'in progress' | 'completed'>('not started');
+  const router = useRouter();
 
   useEffect(() => {
-    // Fetch tasks from the API when the component mounts
-    async function fetchTasks() {
+    // Fetch tasks from the server when the component mounts
+    const fetchTasks = async () => {
       const response = await fetch('/api/tasks');
-      if (response.ok) {
-        const data = await response.json();
-        setTasks(data);
-      } else {
-        setError('Failed to load tasks');
-      }
-    }
+      const data: Task[] = await response.json(); // Ensure the data is typed correctly
+      setTasks(data);
+    };
 
     fetchTasks();
   }, []);
 
-  const handleAddTask = async () => {
+  const handleAddTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('You must be logged in to add tasks');
+      return;
+    }
+
     const response = await fetch('/api/tasks', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: taskName, state: taskState }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title, state, userId: 1 }), // Use actual userId
     });
 
     if (response.ok) {
-      const newTask = await response.json();
+      const newTask: Task = await response.json();
       setTasks([...tasks, newTask]);
-      setTaskName('');
-      setTaskState('not started');
+      setTitle('');
+      setState('not started');
     } else {
-      setError('Failed to add task');
+      alert('Failed to add task');
     }
   };
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Task Management</h1>
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    router.push('/'); // Redirect to the login page
+  };
 
-      <div className="mb-4">
-        <input
-          type="text"
-          value={taskName}
-          onChange={(e) => setTaskName(e.target.value)}
-          placeholder="Task Name"
-          className="border p-2 mr-2"
-        />
-        <select
-          value={taskState}
-          onChange={(e) => setTaskState(e.target.value)}
-          className="border p-2 mr-2"
-        >
-          <option value="not started">Not Started</option>
-          <option value="in progress">In Progress</option>
-          <option value="complete">Complete</option>
-        </select>
+  return (
+    <div className="flex flex-col min-h-screen p-4 bg-gray-100">
+      <div className="mb-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Task List</h1>
         <button
-          onClick={handleAddTask}
-          className="bg-blue-500 text-white p-2"
+          onClick={handleLogout}
+          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
         >
-          Add Task
+          Logout
         </button>
       </div>
 
-      {error && <p className="text-red-500">{error}</p>}
+      <form onSubmit={handleAddTask} className="bg-white p-6 rounded shadow-md mb-4">
+        <h2 className="text-xl font-bold mb-4">Add Task</h2>
+        <div className="mb-4">
+          <label className="block text-gray-700">Title</label>
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300 rounded"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">State</label>
+          <select
+            className="w-full p-2 border border-gray-300 rounded"
+            value={state}
+            onChange={(e) => setState(e.target.value as 'not started' | 'in progress' | 'completed')}
+          >
+            <option value="not started">Not Started</option>
+            <option value="in progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        >
+          Add Task
+        </button>
+      </form>
 
-      <ul>
-        {tasks.map((task) => (
-          <li key={task.id} className="border-b py-2">
-            <span className="font-bold">{task.name}</span> - {task.state}
-          </li>
-        ))}
-      </ul>
+      <div className="bg-white p-6 rounded shadow-md">
+        <h2 className="text-xl font-bold mb-4">Your Tasks</h2>
+        <ul>
+          {tasks.map((task) => (
+            <li key={task.id} className="mb-2 p-2 border border-gray-300 rounded">
+              <h3 className="font-semibold">{task.title}</h3>
+              <p>Status: {task.state}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
