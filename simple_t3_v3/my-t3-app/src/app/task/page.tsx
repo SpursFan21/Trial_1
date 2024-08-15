@@ -20,7 +20,7 @@ export default function TaskPage() {
   useEffect(() => {
     // Fetch tasks from the server when the component mounts
     const fetchTasks = async () => {
-      const response = await fetch('/api/tasks');
+      const response = await fetch('/api/task');
       const data: Task[] = await response.json(); // Ensure the data is typed correctly
       setTasks(data);
     };
@@ -37,7 +37,7 @@ export default function TaskPage() {
       return;
     }
 
-    const response = await fetch('/api/tasks', {
+    const response = await fetch('/api/task', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

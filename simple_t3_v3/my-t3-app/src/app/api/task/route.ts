@@ -1,4 +1,4 @@
-// src/app/api/tasks/route.ts
+// src/app/api/task/route.ts
 
 import { NextResponse } from 'next/server';
 import { db } from '../../../server/db'; // Ensure db is correctly set up
@@ -18,7 +18,7 @@ export async function GET() {
 // Handler for POST requests to create a new task
 export async function POST(request: Request) {
   try {
-    const { title, completed, userId } = await request.json();
+    const { title, state, userId } = await request.json(); // Ensure state is included
 
     // Validate the userId
     if (!userId) {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const task = await db.task.create({
       data: {
         title,
-        completed,
+        state, // Include state in the data
         userId,
       },
     });

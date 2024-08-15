@@ -13,6 +13,7 @@ CREATE TABLE "Task" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "completed" BOOLEAN NOT NULL DEFAULT false,
+    "state" TEXT NOT NULL DEFAULT 'not started', -- Add state column with default value
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
