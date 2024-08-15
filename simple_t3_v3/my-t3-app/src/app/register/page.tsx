@@ -9,24 +9,36 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    const response = await fetch('/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    });
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.message || 'Registration failed');
+        return;
+      }
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      router.push('/dashboard'); // Redirect to the dashboard or to-do list page
-    } else {
-      alert('Registration failed');
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        router.push('/task'); // Redirect to the task page
+      } else {
+        setError('Registration failed');
+      }
+    } catch (err) {
+      console.error('Error during registration:', err);
+      setError('An error occurred during registration');
     }
   };
 
@@ -34,6 +46,7 @@ export default function Register() {
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md">
         <h2 className="text-2xl font-bold mb-4">Register</h2>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
         <div className="mb-4">
           <label className="block text-gray-700">Name</label>
           <input
@@ -80,3 +93,4 @@ export default function Register() {
     </div>
   );
 }
+
