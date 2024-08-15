@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
-import { db } from '../../server/db';
+import { db } from '../../../server/db';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = 'your_jwt_secret'; // Replace with your actual secret
