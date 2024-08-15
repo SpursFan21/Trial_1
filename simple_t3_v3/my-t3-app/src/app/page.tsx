@@ -1,3 +1,5 @@
+//src/app/page.tsx
+
 'use client';
 
 import { useState } from 'react';
@@ -21,7 +23,7 @@ export default function Login() {
 
     if (data.token) {
       localStorage.setItem('token', data.token);
-      router.push('/dashboard'); // Redirect to the dashboard or to-do list page
+      router.push('/task'); // Redirect to the task page after successful login
     } else {
       alert('Login failed');
     }
